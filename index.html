@@ -98,13 +98,17 @@
       width: 28px;
       height: 28px;
       border-radius: 50%;
-      border: 3px solid transparent;
+      border: none;
+      outline: 3px solid transparent;
+      outline-offset: 3px;
+      -webkit-appearance: none;
+      appearance: none;
       cursor: pointer;
-      transition: border-color 0.2s, transform 0.15s;
+      transition: outline-color 0.2s, transform 0.15s;
     }
 
     .theme-btn:hover { transform: scale(1.15); }
-    .theme-btn.active { border-color: var(--text); }
+    .theme-btn.active { outline-color: var(--text); }
 
     .theme-btn[data-theme="dark"]   { background: linear-gradient(135deg, #1a1a2e, #e94560); }
     .theme-btn[data-theme="light"]  { background: linear-gradient(135deg, #f0f2f5, #5c6bc0); }
