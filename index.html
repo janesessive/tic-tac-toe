@@ -11,23 +11,105 @@
       padding: 0;
     }
 
+    :root {
+      --bg:        #1a1a2e;
+      --cell-bg:   #16213e;
+      --cell-hover:#0f3460;
+      --accent:    #e94560;
+      --accent-h:  #c73652;
+      --x-color:   #e94560;
+      --o-color:   #4ecca3;
+      --text:      #eee;
+      --muted:     #aaa;
+    }
+
+    /* Light theme */
+    [data-theme="light"] {
+      --bg:        #f0f2f5;
+      --cell-bg:   #ffffff;
+      --cell-hover:#dde3f0;
+      --accent:    #5c6bc0;
+      --accent-h:  #3f51b5;
+      --x-color:   #e53935;
+      --o-color:   #00897b;
+      --text:      #222;
+      --muted:     #666;
+    }
+
+    /* Ocean theme */
+    [data-theme="ocean"] {
+      --bg:        #0d2137;
+      --cell-bg:   #0a3d62;
+      --cell-hover:#1a5276;
+      --accent:    #00b4d8;
+      --accent-h:  #0096c7;
+      --x-color:   #f77f00;
+      --o-color:   #00b4d8;
+      --text:      #e0f7fa;
+      --muted:     #90caf9;
+    }
+
+    /* Sunset theme */
+    [data-theme="sunset"] {
+      --bg:        #2d1b2e;
+      --cell-bg:   #4a1942;
+      --cell-hover:#6b2d5e;
+      --accent:    #ff6b6b;
+      --accent-h:  #ee5a24;
+      --x-color:   #ff6b6b;
+      --o-color:   #feca57;
+      --text:      #ffe;
+      --muted:     #ddb;
+    }
+
     body {
       font-family: 'Segoe UI', system-ui, sans-serif;
-      background: #1a1a2e;
-      color: #eee;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 24px;
+      gap: 20px;
+      transition: background 0.3s, color 0.3s;
     }
 
     h1 {
       font-size: 2rem;
       letter-spacing: 2px;
-      color: #e94560;
+      color: var(--accent);
     }
+
+    /* Theme picker */
+    .themes {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .themes label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-right: 4px;
+    }
+
+    .theme-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.15s;
+    }
+
+    .theme-btn:hover { transform: scale(1.15); }
+    .theme-btn.active { border-color: var(--text); }
+
+    .theme-btn[data-theme="dark"]   { background: linear-gradient(135deg, #1a1a2e, #e94560); }
+    .theme-btn[data-theme="light"]  { background: linear-gradient(135deg, #f0f2f5, #5c6bc0); }
+    .theme-btn[data-theme="ocean"]  { background: linear-gradient(135deg, #0d2137, #00b4d8); }
+    .theme-btn[data-theme="sunset"] { background: linear-gradient(135deg, #2d1b2e, #ff6b6b); }
 
     .score-board {
       display: flex;
@@ -35,27 +117,25 @@
       font-size: 1.1rem;
     }
 
-    .score-item {
-      text-align: center;
-    }
+    .score-item { text-align: center; }
 
     .score-item span {
       display: block;
       font-size: 1.8rem;
       font-weight: bold;
-      color: #e94560;
+      color: var(--accent);
     }
 
     .status {
       font-size: 1.2rem;
       min-height: 1.6em;
-      color: #aaa;
+      color: var(--muted);
       text-align: center;
     }
 
-    .status.win   { color: #4ecca3; }
-    .status.lose  { color: #e94560; }
-    .status.draw  { color: #f5a623; }
+    .status.win  { color: var(--o-color); }
+    .status.lose { color: var(--x-color); }
+    .status.draw { color: #f5a623; }
 
     .board {
       display: grid;
@@ -65,7 +145,7 @@
     }
 
     .cell {
-      background: #16213e;
+      background: var(--cell-bg);
       border-radius: 12px;
       cursor: pointer;
       display: flex;
@@ -78,30 +158,26 @@
     }
 
     .cell:hover:not(.taken) {
-      background: #0f3460;
+      background: var(--cell-hover);
       transform: scale(1.04);
     }
 
-    .cell.x { color: #e94560; }
-    .cell.o { color: #4ecca3; }
+    .cell.x { color: var(--x-color); }
+    .cell.o { color: var(--o-color); }
 
     .cell.highlight {
-      background: #0f3460;
-      box-shadow: 0 0 12px rgba(78, 204, 163, 0.5);
-    }
-
-    .cell.thinking {
-      animation: pulse 0.6s ease-in-out infinite alternate;
+      background: var(--cell-hover);
+      box-shadow: 0 0 14px var(--o-color);
     }
 
     @keyframes pulse {
-      from { background: #16213e; }
-      to   { background: #0f3460; }
+      from { background: var(--cell-bg); }
+      to   { background: var(--cell-hover); }
     }
 
     .btn {
       padding: 12px 32px;
-      background: #e94560;
+      background: var(--accent);
       color: #fff;
       border: none;
       border-radius: 8px;
@@ -111,7 +187,7 @@
     }
 
     .btn:hover {
-      background: #c73652;
+      background: var(--accent-h);
       transform: scale(1.04);
     }
 
@@ -122,9 +198,9 @@
 
     .diff-btn {
       padding: 8px 20px;
-      background: #16213e;
-      color: #aaa;
-      border: 2px solid #16213e;
+      background: var(--cell-bg);
+      color: var(--muted);
+      border: 2px solid var(--cell-bg);
       border-radius: 8px;
       font-size: 0.9rem;
       cursor: pointer;
@@ -132,14 +208,22 @@
     }
 
     .diff-btn.active {
-      border-color: #e94560;
-      color: #e94560;
+      border-color: var(--accent);
+      color: var(--accent);
     }
   </style>
 </head>
-<body>
+<body data-theme="dark">
 
   <h1>Крестики&#8209;Нолики</h1>
+
+  <div class="themes">
+    <label>Тема:</label>
+    <button class="theme-btn active" data-theme="dark"   title="Тёмная"></button>
+    <button class="theme-btn"        data-theme="light"  title="Светлая"></button>
+    <button class="theme-btn"        data-theme="ocean"  title="Океан"></button>
+    <button class="theme-btn"        data-theme="sunset" title="Закат"></button>
+  </div>
 
   <div class="score-board">
     <div class="score-item">Вы (X)<span id="scoreX">0</span></div>
@@ -179,11 +263,11 @@
     let difficulty = 'hard';
     let score = { X: 0, O: 0, draw: 0 };
 
-    const cells    = document.querySelectorAll('.cell');
-    const status   = document.getElementById('status');
-    const scoreX   = document.getElementById('scoreX');
-    const scoreO   = document.getElementById('scoreO');
-    const scoreDr  = document.getElementById('scoreDraw');
+    const cells   = document.querySelectorAll('.cell');
+    const status  = document.getElementById('status');
+    const scoreX  = document.getElementById('scoreX');
+    const scoreO  = document.getElementById('scoreO');
+    const scoreDr = document.getElementById('scoreDraw');
 
     function init() {
       board = Array(9).fill(null);
@@ -217,7 +301,6 @@
       line.forEach(i => cells[i].classList.add('highlight'));
     }
 
-    // ---- Minimax ----
     function minimax(b, isMax, depth, alpha, beta) {
       if (checkWinner(b, 'O')) return 10 - depth;
       if (checkWinner(b, 'X')) return depth - 10;
@@ -252,7 +335,6 @@
 
     function bestMove(b) {
       if (difficulty === 'easy') {
-        // 40% chance random move
         const empty = b.map((v, i) => v ? null : i).filter(i => i !== null);
         if (Math.random() < 0.4) return empty[Math.floor(Math.random() * empty.length)];
       }
@@ -268,7 +350,6 @@
       return move;
     }
 
-    // ---- Human move ----
     function humanMove(i) {
       if (gameOver || aiThinking || board[i]) return;
       board[i] = 'X';
@@ -277,7 +358,7 @@
 
       if (checkWinner(board, 'X')) {
         highlight(getWinLine(board, 'X'));
-        setStatus('Вы победили! 🎉', 'win');
+        setStatus('Вы победили!', 'win');
         score.X++;
         scoreX.textContent = score.X;
         gameOver = true;
@@ -293,11 +374,9 @@
 
       aiThinking = true;
       setStatus('ИИ думает…', '');
-      // brief delay so UI updates first
       setTimeout(aiMove, 300);
     }
 
-    // ---- AI move ----
     function aiMove() {
       const move = bestMove(board);
       board[move] = 'O';
@@ -323,9 +402,7 @@
       setStatus('Ваш ход', '');
     }
 
-    // ---- Events ----
     cells.forEach(c => c.addEventListener('click', () => humanMove(+c.dataset.i)));
-
     document.getElementById('restart').addEventListener('click', init);
 
     document.querySelectorAll('.diff-btn').forEach(btn => {
@@ -334,6 +411,14 @@
         btn.classList.add('active');
         difficulty = btn.dataset.level;
         init();
+      });
+    });
+
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.body.dataset.theme = btn.dataset.theme;
       });
     });
 
