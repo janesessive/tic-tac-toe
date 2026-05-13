@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Крестики-Нолики</title>
+  <title>Tic-Tac-Toe</title>
   <style>
     * {
       box-sizing: border-box;
@@ -111,6 +111,31 @@
     .theme-btn[data-theme="ocean"]  { background: linear-gradient(135deg, #0d2137, #00b4d8); }
     .theme-btn[data-theme="sunset"] { background: linear-gradient(135deg, #2d1b2e, #ff6b6b); }
 
+    /* Language switcher */
+    .lang-switch {
+      display: flex;
+      gap: 6px;
+    }
+
+    .lang-btn {
+      padding: 4px 12px;
+      background: var(--cell-bg);
+      color: var(--muted);
+      border: 2px solid var(--cell-bg);
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .lang-btn:hover { color: var(--text); }
+
+    .lang-btn.active {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
     .score-board {
       display: flex;
       gap: 32px;
@@ -124,6 +149,12 @@
       font-size: 1.8rem;
       font-weight: bold;
       color: var(--accent);
+    }
+
+    .score-item .score-label {
+      font-size: 1.1rem;
+      font-weight: normal;
+      color: var(--text);
     }
 
     .status {
@@ -215,28 +246,42 @@
 </head>
 <body data-theme="dark">
 
-  <h1>Крестики&#8209;Нолики</h1>
+  <h1 data-i18n="title">Tic-Tac-Toe</h1>
 
   <div class="themes">
-    <label>Тема:</label>
-    <button class="theme-btn active" data-theme="dark"   title="Тёмная"></button>
-    <button class="theme-btn"        data-theme="light"  title="Светлая"></button>
-    <button class="theme-btn"        data-theme="ocean"  title="Океан"></button>
-    <button class="theme-btn"        data-theme="sunset" title="Закат"></button>
+    <label data-i18n="themeLabel">Theme:</label>
+    <button class="theme-btn active" data-theme="dark"   title="Dark"></button>
+    <button class="theme-btn"        data-theme="light"  title="Light"></button>
+    <button class="theme-btn"        data-theme="ocean"  title="Ocean"></button>
+    <button class="theme-btn"        data-theme="sunset" title="Sunset"></button>
+  </div>
+
+  <div class="lang-switch">
+    <button class="lang-btn active" data-lang="en">EN</button>
+    <button class="lang-btn"        data-lang="ru">RU</button>
   </div>
 
   <div class="score-board">
-    <div class="score-item">Вы (X)<span id="scoreX">0</span></div>
-    <div class="score-item">Ничья<span id="scoreDraw">0</span></div>
-    <div class="score-item">ИИ (O)<span id="scoreO">0</span></div>
+    <div class="score-item">
+      <span class="score-label" data-i18n="youX">You (X)</span>
+      <span id="scoreX">0</span>
+    </div>
+    <div class="score-item">
+      <span class="score-label" data-i18n="drawLabel">Draw</span>
+      <span id="scoreDraw">0</span>
+    </div>
+    <div class="score-item">
+      <span class="score-label" data-i18n="aiO">AI (O)</span>
+      <span id="scoreO">0</span>
+    </div>
   </div>
 
   <div class="difficulty">
-    <button class="diff-btn" data-level="easy">Легко</button>
-    <button class="diff-btn active" data-level="hard">Сложно</button>
+    <button class="diff-btn"        data-level="easy" data-i18n="easy">Easy</button>
+    <button class="diff-btn active" data-level="hard" data-i18n="hard">Hard</button>
   </div>
 
-  <div class="status" id="status">Ваш ход</div>
+  <div class="status" id="status">Your turn</div>
 
   <div class="board" id="board">
     <div class="cell" data-i="0"></div>
@@ -250,7 +295,7 @@
     <div class="cell" data-i="8"></div>
   </div>
 
-  <button class="btn" id="restart">Новая игра</button>
+  <button class="btn" id="restart" data-i18n="newGame">New game</button>
 
   <script>
     const WINS = [
@@ -258,6 +303,45 @@
       [0,3,6],[1,4,7],[2,5,8],
       [0,4,8],[2,4,6]
     ];
+
+    const i18n = {
+      en: {
+        title:      'Tic-Tac-Toe',
+        themeLabel: 'Theme:',
+        themeNames: { dark: 'Dark', light: 'Light', ocean: 'Ocean', sunset: 'Sunset' },
+        youX:       'You (X)',
+        drawLabel:  'Draw',
+        aiO:        'AI (O)',
+        easy:       'Easy',
+        hard:       'Hard',
+        yourTurn:   'Your turn',
+        youWon:     'You won!',
+        drawMsg:    'Draw!',
+        aiThinking: 'AI thinking…',
+        aiWon:      'AI won!',
+        newGame:    'New game',
+      },
+      ru: {
+        title:      'Крестики-Нолики',
+        themeLabel: 'Тема:',
+        themeNames: { dark: 'Тёмная', light: 'Светлая', ocean: 'Океан', sunset: 'Закат' },
+        youX:       'Вы (X)',
+        drawLabel:  'Ничья',
+        aiO:        'ИИ (O)',
+        easy:       'Легко',
+        hard:       'Сложно',
+        yourTurn:   'Ваш ход',
+        youWon:     'Вы победили!',
+        drawMsg:    'Ничья!',
+        aiThinking: 'ИИ думает…',
+        aiWon:      'ИИ победил!',
+        newGame:    'Новая игра',
+      }
+    };
+
+    let lang = 'en';
+    let currentStatusKey = 'yourTurn';
+    let currentStatusCls = '';
 
     let board, gameOver, aiThinking;
     let difficulty = 'hard';
@@ -269,6 +353,24 @@
     const scoreO  = document.getElementById('scoreO');
     const scoreDr = document.getElementById('scoreDraw');
 
+    function applyLang() {
+      const t = i18n[lang];
+      document.documentElement.lang = lang;
+      document.title = t.title;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (t[key] !== undefined) el.textContent = t[key];
+      });
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.title = t.themeNames[btn.dataset.theme];
+      });
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+      });
+      status.textContent = t[currentStatusKey];
+      status.className = 'status ' + (currentStatusCls || '');
+    }
+
     function init() {
       board = Array(9).fill(null);
       gameOver = false;
@@ -277,11 +379,13 @@
         c.textContent = '';
         c.className = 'cell';
       });
-      setStatus('Ваш ход', '');
+      setStatus('yourTurn', '');
     }
 
-    function setStatus(text, cls) {
-      status.textContent = text;
+    function setStatus(key, cls) {
+      currentStatusKey = key;
+      currentStatusCls = cls;
+      status.textContent = i18n[lang][key];
       status.className = 'status ' + (cls || '');
     }
 
@@ -358,14 +462,14 @@
 
       if (checkWinner(board, 'X')) {
         highlight(getWinLine(board, 'X'));
-        setStatus('Вы победили!', 'win');
+        setStatus('youWon', 'win');
         score.X++;
         scoreX.textContent = score.X;
         gameOver = true;
         return;
       }
       if (isDraw(board)) {
-        setStatus('Ничья!', 'draw');
+        setStatus('drawMsg', 'draw');
         score.draw++;
         scoreDr.textContent = score.draw;
         gameOver = true;
@@ -373,7 +477,7 @@
       }
 
       aiThinking = true;
-      setStatus('ИИ думает…', '');
+      setStatus('aiThinking', '');
       setTimeout(aiMove, 300);
     }
 
@@ -386,20 +490,20 @@
 
       if (checkWinner(board, 'O')) {
         highlight(getWinLine(board, 'O'));
-        setStatus('ИИ победил!', 'lose');
+        setStatus('aiWon', 'lose');
         score.O++;
         scoreO.textContent = score.O;
         gameOver = true;
         return;
       }
       if (isDraw(board)) {
-        setStatus('Ничья!', 'draw');
+        setStatus('drawMsg', 'draw');
         score.draw++;
         scoreDr.textContent = score.draw;
         gameOver = true;
         return;
       }
-      setStatus('Ваш ход', '');
+      setStatus('yourTurn', '');
     }
 
     cells.forEach(c => c.addEventListener('click', () => humanMove(+c.dataset.i)));
@@ -419,6 +523,13 @@
         document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         document.body.dataset.theme = btn.dataset.theme;
+      });
+    });
+
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        lang = btn.dataset.lang;
+        applyLang();
       });
     });
 
