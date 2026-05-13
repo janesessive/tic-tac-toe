@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Крестики-Нолики</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      letter-spacing: 2px;
+      color: #e94560;
+    }
+
+    .score-board {
+      display: flex;
+      gap: 32px;
+      font-size: 1.1rem;
+    }
+
+    .score-item {
+      text-align: center;
+    }
+
+    .score-item span {
+      display: block;
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #e94560;
+    }
+
+    .status {
+      font-size: 1.2rem;
+      min-height: 1.6em;
+      color: #aaa;
+      text-align: center;
+    }
+
+    .status.win   { color: #4ecca3; }
+    .status.lose  { color: #e94560; }
+    .status.draw  { color: #f5a623; }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 110px);
+      grid-template-rows: repeat(3, 110px);
+      gap: 8px;
+    }
+
+    .cell {
+      background: #16213e;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      font-weight: bold;
+      transition: background 0.15s, transform 0.1s;
+      user-select: none;
+    }
+
+    .cell:hover:not(.taken) {
+      background: #0f3460;
+      transform: scale(1.04);
+    }
+
+    .cell.x { color: #e94560; }
+    .cell.o { color: #4ecca3; }
+
+    .cell.highlight {
+      background: #0f3460;
+      box-shadow: 0 0 12px rgba(78, 204, 163, 0.5);
+    }
+
+    .cell.thinking {
+      animation: pulse 0.6s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { background: #16213e; }
+      to   { background: #0f3460; }
+    }
+
+    .btn {
+      padding: 12px 32px;
+      background: #e94560;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn:hover {
+      background: #c73652;
+      transform: scale(1.04);
+    }
+
+    .difficulty {
+      display: flex;
+      gap: 8px;
+    }
+
+    .diff-btn {
+      padding: 8px 20px;
+      background: #16213e;
+      color: #aaa;
+      border: 2px solid #16213e;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .diff-btn.active {
+      border-color: #e94560;
+      color: #e94560;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Крестики&#8209;Нолики</h1>
+
+  <div class="score-board">
+    <div class="score-item">Вы (X)<span id="scoreX">0</span></div>
+    <div class="score-item">Ничья<span id="scoreDraw">0</span></div>
+    <div class="score-item">ИИ (O)<span id="scoreO">0</span></div>
+  </div>
+
+  <div class="difficulty">
+    <button class="diff-btn" data-level="easy">Легко</button>
+    <button class="diff-btn active" data-level="hard">Сложно</button>
+  </div>
+
+  <div class="status" id="status">Ваш ход</div>
+
+  <div class="board" id="board">
+    <div class="cell" data-i="0"></div>
+    <div class="cell" data-i="1"></div>
+    <div class="cell" data-i="2"></div>
+    <div class="cell" data-i="3"></div>
+    <div class="cell" data-i="4"></div>
+    <div class="cell" data-i="5"></div>
+    <div class="cell" data-i="6"></div>
+    <div class="cell" data-i="7"></div>
+    <div class="cell" data-i="8"></div>
+  </div>
+
+  <button class="btn" id="restart">Новая игра</button>
+
+  <script>
+    const WINS = [
+      [0,1,2],[3,4,5],[6,7,8],
+      [0,3,6],[1,4,7],[2,5,8],
+      [0,4,8],[2,4,6]
+    ];
+
+    let board, gameOver, aiThinking;
+    let difficulty = 'hard';
+    let score = { X: 0, O: 0, draw: 0 };
+
+    const cells    = document.querySelectorAll('.cell');
+    const status   = document.getElementById('status');
+    const scoreX   = document.getElementById('scoreX');
+    const scoreO   = document.getElementById('scoreO');
+    const scoreDr  = document.getElementById('scoreDraw');
+
+    function init() {
+      board = Array(9).fill(null);
+      gameOver = false;
+      aiThinking = false;
+      cells.forEach(c => {
+        c.textContent = '';
+        c.className = 'cell';
+      });
+      setStatus('Ваш ход', '');
+    }
+
+    function setStatus(text, cls) {
+      status.textContent = text;
+      status.className = 'status ' + (cls || '');
+    }
+
+    function checkWinner(b, player) {
+      return WINS.some(([a, c, d]) => b[a] === player && b[c] === player && b[d] === player);
+    }
+
+    function getWinLine(b, player) {
+      return WINS.find(([a, c, d]) => b[a] === player && b[c] === player && b[d] === player);
+    }
+
+    function isDraw(b) {
+      return b.every(Boolean) && !checkWinner(b, 'X') && !checkWinner(b, 'O');
+    }
+
+    function highlight(line) {
+      line.forEach(i => cells[i].classList.add('highlight'));
+    }
+
+    // ---- Minimax ----
+    function minimax(b, isMax, depth, alpha, beta) {
+      if (checkWinner(b, 'O')) return 10 - depth;
+      if (checkWinner(b, 'X')) return depth - 10;
+      if (b.every(Boolean)) return 0;
+
+      if (isMax) {
+        let best = -Infinity;
+        for (let i = 0; i < 9; i++) {
+          if (!b[i]) {
+            b[i] = 'O';
+            best = Math.max(best, minimax(b, false, depth + 1, alpha, beta));
+            b[i] = null;
+            alpha = Math.max(alpha, best);
+            if (beta <= alpha) break;
+          }
+        }
+        return best;
+      } else {
+        let best = Infinity;
+        for (let i = 0; i < 9; i++) {
+          if (!b[i]) {
+            b[i] = 'X';
+            best = Math.min(best, minimax(b, true, depth + 1, alpha, beta));
+            b[i] = null;
+            beta = Math.min(beta, best);
+            if (beta <= alpha) break;
+          }
+        }
+        return best;
+      }
+    }
+
+    function bestMove(b) {
+      if (difficulty === 'easy') {
+        // 40% chance random move
+        const empty = b.map((v, i) => v ? null : i).filter(i => i !== null);
+        if (Math.random() < 0.4) return empty[Math.floor(Math.random() * empty.length)];
+      }
+      let best = -Infinity, move = -1;
+      for (let i = 0; i < 9; i++) {
+        if (!b[i]) {
+          b[i] = 'O';
+          const val = minimax(b, false, 0, -Infinity, Infinity);
+          b[i] = null;
+          if (val > best) { best = val; move = i; }
+        }
+      }
+      return move;
+    }
+
+    // ---- Human move ----
+    function humanMove(i) {
+      if (gameOver || aiThinking || board[i]) return;
+      board[i] = 'X';
+      cells[i].textContent = '✕';
+      cells[i].classList.add('x', 'taken');
+
+      if (checkWinner(board, 'X')) {
+        highlight(getWinLine(board, 'X'));
+        setStatus('Вы победили! 🎉', 'win');
+        score.X++;
+        scoreX.textContent = score.X;
+        gameOver = true;
+        return;
+      }
+      if (isDraw(board)) {
+        setStatus('Ничья!', 'draw');
+        score.draw++;
+        scoreDr.textContent = score.draw;
+        gameOver = true;
+        return;
+      }
+
+      aiThinking = true;
+      setStatus('ИИ думает…', '');
+      // brief delay so UI updates first
+      setTimeout(aiMove, 300);
+    }
+
+    // ---- AI move ----
+    function aiMove() {
+      const move = bestMove(board);
+      board[move] = 'O';
+      cells[move].textContent = '◯';
+      cells[move].classList.add('o', 'taken');
+      aiThinking = false;
+
+      if (checkWinner(board, 'O')) {
+        highlight(getWinLine(board, 'O'));
+        setStatus('ИИ победил!', 'lose');
+        score.O++;
+        scoreO.textContent = score.O;
+        gameOver = true;
+        return;
+      }
+      if (isDraw(board)) {
+        setStatus('Ничья!', 'draw');
+        score.draw++;
+        scoreDr.textContent = score.draw;
+        gameOver = true;
+        return;
+      }
+      setStatus('Ваш ход', '');
+    }
+
+    // ---- Events ----
+    cells.forEach(c => c.addEventListener('click', () => humanMove(+c.dataset.i)));
+
+    document.getElementById('restart').addEventListener('click', init);
+
+    document.querySelectorAll('.diff-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        difficulty = btn.dataset.level;
+        init();
+      });
+    });
+
+    init();
+  </script>
+</body>
+</html>
